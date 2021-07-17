@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/helpers/validators.dart';
+import 'package:loja_virtual/models/users.dart';
+import 'package:loja_virtual/models/user_manager.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
 
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   final ButtonStyle flatButtonStyle = TextButton.styleFrom(
     primary: Colors.black,
     // backgroundColor: Colors.black,,
     padding: EdgeInsets.all(0)
   );
 
+  final GlobalKey<ScaffoldState> scalffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // key: scalffoldKey,
       appBar: AppBar(
         title: const Text('Entrar'),
         centerTitle: true,
@@ -46,7 +53,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16,),
                 TextFormField(
-                  controller: passController,
+                  controller: passwordController,
                   decoration: const InputDecoration(hintText: 'Senha'),
                   keyboardType: TextInputType.emailAddress,
                   autocorrect: false,
@@ -76,7 +83,23 @@ class LoginScreen extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       if(formKey.currentState!.validate()) {
-                        print(emailController.text);
+                        context.read<UserManager>().signIn(
+                          users: Users(
+                            email: emailController.text,
+                            password: passwordController.text
+                          ), onFail: (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Falha ao entrar: $e'),
+                                backgroundColor: Colors.red,
+                                duration: Duration(seconds: 3),
+                              )
+                            );
+                        },
+                          onSuccess: () {
+                            // TODO: FECHAR TELA DE LOGIN
+                          }
+                        );
                       }
                     },
                     style: ButtonStyle(
